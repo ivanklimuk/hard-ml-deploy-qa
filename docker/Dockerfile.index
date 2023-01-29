@@ -1,6 +1,6 @@
 FROM daangn/faiss
 
-RUN apt-get update && apt-get install -y gcc
+RUN apt-get --allow-releaseinfo-change update && apt-get install -y gcc
 
 RUN pip install --upgrade pip
 RUN pip install setuptools wheel
