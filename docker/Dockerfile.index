@@ -7,7 +7,8 @@ RUN pip install setuptools wheel
 RUN pip install flask==2.2.2 \
     requests==2.25.1 \
     redis==4.4.0 \
-    numpy==1.21.6
+    numpy==1.21.6 \
+    gunicorn==20.0.4
 
 WORKDIR /app
 COPY ./ /app/
@@ -15,4 +16,4 @@ COPY ./ /app/
 ENV FLASK_APP /app/main.py
 
 EXPOSE 5000
-CMD flask run --host 0.0.0.0 --port 5000
+CMD gunicorn -w 1 -b 0.0.0.0:5000 -k sync --threads 1 -n 1 main:app
