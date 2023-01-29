@@ -26,6 +26,7 @@ do
         --health-start-period 30s \
         --health-retries 2 \
         --stop-grace-period 30s \
+        --stop-signal SIGTERM \
         -p $service_port:5000 \
         --mount type=bind,source=/var/data,target=/var/data \
         --env SERVICE_NAME=$service_name \

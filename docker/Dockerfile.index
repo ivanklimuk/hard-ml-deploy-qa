@@ -15,4 +15,4 @@ COPY ./ /app/
 ENV FLASK_APP /app/main.py
 
 EXPOSE 5000
-CMD python3 main.py
+CMD python3 main.py & wait
