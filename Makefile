@@ -103,7 +103,8 @@ index/update:
 	scripts/index_update.sh ${SWARM_MANAGER} ${DOCKER_REGISTRY} ${DATA_GENERATION} ${N_CLUSTERS} ${INDEX_PORT} ${REDIS_HOST} ${REDIS_PORT} ${REDIS_PASSWORD}
 
 index/stop:
-	ssh root@${SWARM_MANAGER} "docker service ls --filter name=index_gen_ --quiet | xargs -r docker service rm"
+	echo "Stop all indices"
+	scripts/index_stop.sh ${SWARM_MANAGER} ${REDIS_HOST} ${REDIS_PORT} ${REDIS_PASSWORD}
 
 
 # Gateway

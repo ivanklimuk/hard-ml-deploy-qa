@@ -10,8 +10,6 @@ from .constants import (
     SERVICE_PORT,
 )
 
-SERVICE_URL = f"{SERVICE_NAME}:{SERVICE_PORT}"
-
 redis_client = redis.Redis(
     host=REDIS_HOST,
     port=REDIS_PORT,
@@ -21,18 +19,18 @@ redis_client = redis.Redis(
 
 
 def heartbeat(cluster_center_str):
-    print(f"Update the hash key {SERVICE_URL} in redis")
-    redis_client.hset(SERVICE_URL, "cluster_center", cluster_center_str)
+    print(f"Update the hash key {SERVICE_NAME} in redis")
+    redis_client.hset(SERVICE_NAME, "cluster_center", cluster_center_str)
+    redis_client.hset(SERVICE_NAME, "port", SERVICE_PORT)
     # expire after (2 x heartbeat + 1) periods
-    redis_client.expire(SERVICE_URL, 61)
+    redis_client.expire(SERVICE_NAME, 61)
 
 
 def cleanup():
-    print(f"Removing the hash key {SERVICE_URL} from redis", flush=True)
-    redis_client.delete(SERVICE_URL)
+    print(f"Removing the hash key {SERVICE_NAME} from redis", flush=True)
+    redis_client.delete(SERVICE_NAME)
 
 
 def stop_signal_handler(sig, frame):
     cleanup()
-    time.sleep(60)
     sys.exit(0)

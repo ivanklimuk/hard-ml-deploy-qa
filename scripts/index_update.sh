@@ -30,8 +30,7 @@ for service_name in $(ssh root@$SWARM_MANAGER "docker service ls --format '{{.Na
   ssh root@$SWARM_MANAGER "docker service create \
     --name $new_service_name \
     --reserve-memory 1GB \
-    --health-start-period 30s \
-    --health-retries 2 \
+    --stop-signal SIGTERM \
     --stop-grace-period 30s \
     --stop-signal SIGTERM \
     -p $new_service_port:5000 \
@@ -50,7 +49,7 @@ for service_name in $(ssh root@$SWARM_MANAGER "docker service ls --format '{{.Na
   while true; do
     sleep 30
 
-    service_ready=$(ssh root@$SWARM_MANAGER "redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD exists $new_service_name:$new_service_port")
+    service_ready=$(ssh root@$SWARM_MANAGER "redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD exists $new_service_name")
     if [ $service_ready -eq 1 ]; then
       echo "The new service $new_service_name is ready and available"
       break
@@ -66,6 +65,7 @@ for service_name in $(ssh root@$SWARM_MANAGER "docker service ls --format '{{.Na
     echo "The new service is not yet ready, $retries retries left..."
   done
 
-  echo "Stopping the previous service $service_name..."
+  echo "Remove the previous service from registry and stop it ($service_name)..."
+  ssh root@$SWARM_MANAGER "redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD del $service_name"
   ssh root@$SWARM_MANAGER "docker service rm $service_name"
 done

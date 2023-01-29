@@ -18,13 +18,11 @@ do
     service_name="index_gen_${DATA_GENERATION}_clust_$i"
     service_port=$(($INDEX_PORT + 100 * $DATA_GENERATION + $i))
     
-    echo "Deploying ${service_name}:${service_port}"
+    echo "Deploying ${service_name}"
     ssh root@$SWARM_MANAGER "docker service create \
         --name $service_name \
         --replicas 1 \
         --reserve-memory 1GB \
-        --health-start-period 30s \
-        --health-retries 2 \
         --stop-grace-period 30s \
         --stop-signal SIGTERM \
         -p $service_port:5000 \
