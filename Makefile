@@ -45,7 +45,7 @@ data: data/prepare data/push
 # Embedder
 embedder/build:
 	echo "Build embedder image"
-	docker build -t ${DOCKER_REGISTRY}/embedder - < docker/Dockerfile.embedder
+	docker build --squash -t ${DOCKER_REGISTRY}/embedder - < docker/Dockerfile.embedder
 
 embedder/push:
 	echo "Push embedder image"
@@ -62,7 +62,7 @@ embedder/stop:
 # Ranker
 ranker/build:
 	echo "Build ranker image"
-	docker build -t ${DOCKER_REGISTRY}/ranker -f docker/Dockerfile.ranker ranker
+	docker build --squash -t ${DOCKER_REGISTRY}/ranker -f docker/Dockerfile.ranker ranker
 
 ranker/push:
 	echo "Push ranker image"
@@ -84,7 +84,7 @@ index/registry:
 
 index/build:
 	echo "Build (empty) index image"
-	docker build -t ${DOCKER_REGISTRY}/index -f docker/Dockerfile.index index
+	docker build --squash -t ${DOCKER_REGISTRY}/index -f docker/Dockerfile.index index
 
 index/push:
 	echo "Push index image"
@@ -104,7 +104,7 @@ index/stop:
 # Gateway
 gateway/build:
 	echo "Build gateway image"
-	docker build -t ${DOCKER_REGISTRY}/gateway -f docker/Dockerfile.gateway gateway
+	docker build --squash -t ${DOCKER_REGISTRY}/gateway -f docker/Dockerfile.gateway gateway
 
 gateway/push:
 	echo "Push gateway image"
