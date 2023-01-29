@@ -39,23 +39,23 @@ def background_heartbeat():
     thread.start()
 
 
+# before stopping, remove the data about the service from redis
+signal.signal(signal.SIGINT, stop_signal_handler)
+signal.signal(signal.SIGTERM, stop_signal_handler)
+
 app = Flask(__name__)
 
 
 @app.route("/get_k_neighbours", methods=["POST"])
 def get_k_neighbours():
     k = int(request.args.get("k"))
-    vector = request.json.get("embedding")
+    vector = np.array(request.json.get("embedding"))
 
     _, I = search_index.search(vector, k)
     return jsonify(documents=[idx_to_doc[i] for i in I.tolist()])
 
 
 if __name__ == "__main__":
-    # before stopping, remove the data about the service from redis
-    signal.signal(signal.SIGINT, stop_signal_handler)
-    signal.signal(signal.SIGTERM, stop_signal_handler)
-
     # register for the first time
     first_heartbeat()
 

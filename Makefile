@@ -3,7 +3,9 @@
 include configs/vars.env
 export $(cat configs/vars.env | xargs) && rails c
 
-# General steps
+
+######################################### High-level steps #########################################
+
 prepare:
 	data
 	nodes 
@@ -25,6 +27,8 @@ deploy:
 
 update:
 	index/update
+
+######################################### Detailed targets #########################################
 
 # Nodes settings
 nodes:
@@ -95,8 +99,8 @@ index/deploy:
 	scripts/index_deploy.sh ${SWARM_MANAGER} ${DOCKER_REGISTRY} ${DATA_GENERATION} ${N_CLUSTERS} ${INDEX_PORT} ${REDIS_HOST} ${REDIS_PORT} ${REDIS_PASSWORD}
 
 index/update:
-	echo "Update index clusters with data generation ${NEW_DATA_GENERATION}"
-	scripts/index_update.sh ${SWARM_MANAGER} ${N_CLUSTERS} ${DATA_GENERATION} ${DOCKER_REGISTRY} 
+	echo "Update index clusters with data generation ${DATA_GENERATION}"
+	scripts/index_update.sh ${SWARM_MANAGER} ${DOCKER_REGISTRY} ${DATA_GENERATION} ${N_CLUSTERS} ${INDEX_PORT} ${REDIS_HOST} ${REDIS_PORT} ${REDIS_PASSWORD}
 
 index/stop:
 	ssh root@${SWARM_MANAGER} "docker service ls --filter name=index_gen_ --quiet | xargs -r docker service rm"
