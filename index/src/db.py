@@ -24,12 +24,15 @@ def register_service(cluster_center_str):
 
 
 def first_register_service(cluster_center_str):
+    print(f"Register service {SERVICE_URL}", flush=True)
+
     # make the data about the service expired after (2 x heartbeat + 1) periods
     redis_client.expire(SERVICE_URL, 61)
     redis_client.hset(SERVICE_URL, "cluster_center", cluster_center_str)
 
 
 def deregister_service():
+    print(f"Removing the hash key {SERVICE_URL} from redis", flush=True)
     redis_client.delete(SERVICE_URL)
 
 
