@@ -19,15 +19,10 @@ redis_client = redis.Redis(
 )
 
 
-def register_service(cluster_center_str):
+def heartbeat(cluster_center_str):
+    print(f"Update the hash key {SERVICE_URL} in redis")
     redis_client.hset(SERVICE_URL, "cluster_center", cluster_center_str)
-
-
-def first_register_service(cluster_center_str):
-    print(f"Register service {SERVICE_URL}", flush=True)
-    redis_client.hset(SERVICE_URL, "cluster_center", cluster_center_str)
-
-    # make the data about the service expired after (2 x heartbeat + 1) periods
+    # expire after (2 x heartbeat + 1) periods
     redis_client.expire(SERVICE_URL, 61)
 
 

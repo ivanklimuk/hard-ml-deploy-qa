@@ -8,7 +8,7 @@ import json
 import time
 from threading import Thread
 
-from src.db import first_register_service, register_service, stop_signal_handler
+from src.db import heartbeat, stop_signal_handler
 from src.constants import DATA_GENERATION, CLUSTER
 
 cluster_center = np.load(
@@ -23,11 +23,16 @@ with open(f"/var/data/{DATA_GENERATION}/{CLUSTER}/idx_to_doc.json") as f:
     idx_to_doc = json.load(f)
 
 
-def redis_heartbeat():
+def first_heartbeat():
+    print("Register service")
+    heartbeat(cluster_center_str)
+
+
+def background_heartbeat():
     def _beat():
         while True:
             time.sleep(30)
-            register_service(cluster_center_str)
+            heartbeat(cluster_center_str)
             print("Still alive...", flush=True)
 
     thread = Thread(target=_beat)
@@ -51,11 +56,11 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, stop_signal_handler)
     signal.signal(signal.SIGTERM, stop_signal_handler)
 
-    # register for the first time, set expiration
-    first_register_service(cluster_center_str)
+    # register for the first time
+    first_heartbeat()
 
     # start background heartbeat
-    redis_heartbeat()
+    background_heartbeat()
 
     # start the app
     app.run(host="0.0.0.0", port=5000)
