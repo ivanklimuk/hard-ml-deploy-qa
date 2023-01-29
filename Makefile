@@ -99,7 +99,8 @@ index/update:
 	scripts/index_update.sh ${SWARM_MANAGER} ${N_CLUSTERS} ${DATA_GENERATION} ${DOCKER_REGISTRY} 
 
 index/stop:
-	echo "Not implemented"
+	ssh root@${SWARM_MANAGER} "docker service ls --filter name=index_gen_ --quiet | xargs -r docker service rm"
+
 
 # Gateway
 gateway/build:

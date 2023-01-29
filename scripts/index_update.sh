@@ -29,8 +29,8 @@ for service_name in $(docker service ls --format '{{.Name}}' | grep '^index_gen_
   ssh root@$SWARM_MANAGER "docker service create \
     --name $new_service_name \
     --reserve-memory 1GB \
-    --max-attempts=3 \
-    --delay=30 \
+    --health-start-period 30s \
+    --health-retries 2 \
     -p $INDEX_PORT:5000 \
     --env SERVICE_NAME=$service_name \
     --env SERVICE_PORT=$INDEX_PORT \

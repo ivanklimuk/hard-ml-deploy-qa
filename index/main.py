@@ -8,7 +8,7 @@ import json
 import time
 from threading import Thread
 
-from src.db import register_service, stop_signal_handler
+from src.db import first_register_service, register_service, stop_signal_handler
 from src.constants import DATA_GENERATION, CLUSTER
 
 cluster_center = np.load(
@@ -24,8 +24,8 @@ with open(f"/var/data/{DATA_GENERATION}/{CLUSTER}/idx_to_doc.json") as f:
 def redis_heartbeat():
     cluster_center_str = ",".join([str(v) for v in cluster_center])
     while True:
-        register_service(cluster_center_str)
         time.sleep(30)
+        register_service(cluster_center_str)
 
 
 app = Flask(__name__)
@@ -41,8 +41,16 @@ def get_k_neighbours():
 
 
 if __name__ == "__main__":
+    # before stopping, remove the data about the service from redis
     signal.signal(signal.SIGINT, stop_signal_handler)
     signal.signal(signal.SIGTERM, stop_signal_handler)
+
+    # register for the first time, set expiration
+    first_register_service(",".join([str(v) for v in cluster_center]))
+
+    # start background heartbeat
     thread = Thread(target=redis_heartbeat)
     thread.start()
+
+    # start the app
     app.run()

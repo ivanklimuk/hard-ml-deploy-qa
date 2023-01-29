@@ -16,16 +16,19 @@ REDIS_PASSWORD=$8
 for ((i=0; i<$N_CLUSTERS; i++))
 do
     service_name="index_gen_${DATA_GENERATION}_clust_$i"
+    service_port=$(($INDEX_PORT + 100 * $DATA_GENERATION + $i))
+    
+    echo "Deploying ${service_name}:${service_port}"
     ssh root@$SWARM_MANAGER "docker service create \
         --name $service_name \
         --replicas 1 \
         --reserve-memory 1GB \
-        --max-attempts=3 \
-        --delay=30 \
-        -p $INDEX_PORT:5000 \
+        --health-start-period 30s \
+        --health-retries 2 \
+        -p $service_port:5000 \
         --mount type=bind,source=/var/data,target=/var/data \
         --env SERVICE_NAME=$service_name \
-        --env SERVICE_PORT=$INDEX_PORT \
+        --env SERVICE_PORT=$service_port \
         --env CLUSTER=$i \
         --env DATA_GENERATION=$DATA_GENERATION \
         --env REDIS_HOST=$REDIS_HOST \

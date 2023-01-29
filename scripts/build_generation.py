@@ -8,7 +8,7 @@ from tqdm.auto import tqdm
 
 DATA_GENERATION = os.getenv("DATA_GENERATION", "1")
 RAW_PATH = "./data.misc/raw"
-OUTPUT_PATH = f"./data.misc/{DATA_GENERATION}/clusters"
+OUTPUT_PATH = f"./data.misc/{DATA_GENERATION}"
 
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 print("Copy cluster centers")
