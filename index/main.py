@@ -39,10 +39,6 @@ def background_heartbeat():
     thread.start()
 
 
-# before stopping, remove the data about the service from redis
-signal.signal(signal.SIGINT, stop_signal_handler)
-signal.signal(signal.SIGTERM, stop_signal_handler)
-
 app = Flask(__name__)
 
 
@@ -56,6 +52,10 @@ def get_k_neighbours():
 
 
 if __name__ == "__main__":
+    # before stopping, remove the data about the service from redis
+    signal.signal(signal.SIGINT, stop_signal_handler)
+    signal.signal(signal.SIGTERM, stop_signal_handler)
+
     # register for the first time
     first_heartbeat()
 

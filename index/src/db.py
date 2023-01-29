@@ -1,5 +1,6 @@
 import sys
 import redis
+import time
 
 from .constants import (
     REDIS_HOST,
@@ -26,11 +27,12 @@ def heartbeat(cluster_center_str):
     redis_client.expire(SERVICE_URL, 61)
 
 
-def deregister_service():
+def cleanup():
     print(f"Removing the hash key {SERVICE_URL} from redis", flush=True)
     redis_client.delete(SERVICE_URL)
 
 
 def stop_signal_handler(sig, frame):
-    deregister_service()
+    cleanup()
+    time.sleep(60)
     sys.exit(0)

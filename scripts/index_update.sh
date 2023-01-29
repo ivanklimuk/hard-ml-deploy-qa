@@ -32,6 +32,7 @@ for service_name in $(ssh root@$SWARM_MANAGER "docker service ls --format '{{.Na
     --reserve-memory 1GB \
     --health-start-period 30s \
     --health-retries 2 \
+    --stop-grace-period 30s \
     -p $new_service_port:5000 \
     --mount type=bind,source=/var/data,target=/var/data \
     --env SERVICE_NAME=$new_service_name \
