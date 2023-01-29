@@ -14,6 +14,8 @@ from src.constants import DATA_GENERATION, CLUSTER
 cluster_center = np.load(
     f"/var/data/{DATA_GENERATION}/clusters_centers.pkl", allow_pickle=True
 )[str(CLUSTER)]
+cluster_center_str = ",".join([str(v) for v in cluster_center])
+
 search_index = faiss.read_index(
     f"/var/data/{DATA_GENERATION}/{CLUSTER}/search_index.faiss"
 )
@@ -22,10 +24,14 @@ with open(f"/var/data/{DATA_GENERATION}/{CLUSTER}/idx_to_doc.json") as f:
 
 
 def redis_heartbeat():
-    cluster_center_str = ",".join([str(v) for v in cluster_center])
-    while True:
-        time.sleep(30)
-        register_service(cluster_center_str)
+    def _beat():
+        while True:
+            time.sleep(30)
+            register_service(cluster_center_str)
+            print("Still alive...", flush=True)
+
+    thread = Thread(target=redis_heartbeat)
+    thread.start()
 
 
 app = Flask(__name__)
@@ -46,11 +52,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, stop_signal_handler)
 
     # register for the first time, set expiration
-    first_register_service(",".join([str(v) for v in cluster_center]))
+    first_register_service(cluster_center_str)
 
     # start background heartbeat
-    thread = Thread(target=redis_heartbeat)
-    thread.start()
+    redis_heartbeat()
 
     # start the app
     app.run(host="0.0.0.0", port=5000)
