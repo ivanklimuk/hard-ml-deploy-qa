@@ -30,7 +30,7 @@ def redis_heartbeat():
             register_service(cluster_center_str)
             print("Still alive...", flush=True)
 
-    thread = Thread(target=redis_heartbeat)
+    thread = Thread(target=_beat)
     thread.start()
 
 
