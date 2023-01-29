@@ -1,11 +1,118 @@
+# Export all environment variables
+
 include configs/vars.env
 export $(cat configs/vars.env | xargs) && rails c
 
-build_embedder:
-	docker build -t ${DOCKER_REGISTRY}/embedder -f docker/Dockerfile.embedder .
+# General steps
+prepare:
+	data
+	nodes 
+	embedder/build 
+	embedder/push 
+	ranker/build
+	ranker/push
+	index/registry
+	index/build
+	index/push
+	gateway/build
+	gateway/push
 
-push_embedder:
+deploy:
+	embedder/deploy
+	ranker/deploy
+	index/deploy
+	gateway/deploy
+
+update:
+	index/update
+
+# Nodes settings
+nodes:
+	echo "Setup nodes utilities"
+	scripts/install_utils.sh ${SWARM_MANAGER}
+
+# Data
+data/prepare:
+	echo "Building data generation (on local machine)"
+	python3 scripts/build_generation.py
+
+data/push:
+	echo "Deliver data to swarm nodes"
+	scripts/deliver_data.sh ${HOSTS} ${DATA_GENERATION}
+
+data: data/prepare data/push
+
+# Embedder
+embedder/build:
+	echo "Build embedder image"
+	docker build -t ${DOCKER_REGISTRY}/embedder - < docker/Dockerfile.embedder
+
+embedder/push:
+	echo "Push embedder image"
 	docker push ${DOCKER_REGISTRY}/embedder
 
-run_embedder:
-	ssh root@${SWARM_MANAGER_IP} "docker service create --replicas 1 --name embedder -p 8501:8501 ${DOCKER_REGISTRY}/embedder"
+embedder/deploy:
+	echo "Deploy embedder"
+	ssh root@${SWARM_MANAGER} "docker service create --replicas 1 --name embedder -p ${EMBEDDER_PORT}:8501 ${DOCKER_REGISTRY}/embedder"
+
+embedder/stop:
+	echo "Not implemented"
+
+
+# Ranker
+ranker/build:
+	echo "Build ranker image"
+	docker build -t ${DOCKER_REGISTRY}/ranker -f docker/Dockerfile.ranker ranker
+
+ranker/push:
+	echo "Push ranker image"
+	docker push ${DOCKER_REGISTRY}/ranker
+
+ranker/deploy:
+	echo "Deploy ranker"
+	ssh root@${SWARM_MANAGER} "docker service create --replicas 1 --name ranker -p ${RANKER_PORT}:5000 ${DOCKER_REGISTRY}/ranker"
+
+ranker/stop:
+	echo "Not implemented"
+
+
+# Indices
+index/registry:
+	echo "Run redis registry for index discovery"
+	ssh root@${REDIS_HOST} "docker run -d -p ${REDIS_PORT}:${REDIS_PORT} docker.io/library/redis:latest /bin/sh -c 'redis-server --requirepass ${REDIS_PASSWORD}'"
+	ssh root@${REDIS_HOST} "docker run -d -p 8001:8001 docker.io/redislabs/redisinsight:latest"
+
+index/build:
+	echo "Build (empty) index image"
+	docker build -t ${DOCKER_REGISTRY}/index -f docker/Dockerfile.index index
+
+index/push:
+	echo "Push index image"
+	docker push ${DOCKER_REGISTRY}/index
+
+index/deploy:
+	echo "Deploy index clusters"
+	scripts/index_deploy.sh ${SWARM_MANAGER} ${DOCKER_REGISTRY} ${DATA_GENERATION} ${N_CLUSTERS} ${INDEX_PORT} ${REDIS_HOST} ${REDIS_PORT} ${REDIS_PASSWORD}
+
+index/update:
+	echo "Update index clusters with data generation ${NEW_DATA_GENERATION}"
+	scripts/index_update.sh ${SWARM_MANAGER} ${N_CLUSTERS} ${DATA_GENERATION} ${DOCKER_REGISTRY} 
+
+index/stop:
+	echo "Not implemented"
+
+# Gateway
+gateway/build:
+	echo "Build gateway image"
+	docker build -t ${DOCKER_REGISTRY}/gateway -f docker/Dockerfile.gateway gateway
+
+gateway/push:
+	echo "Push gateway image"
+	docker push ${DOCKER_REGISTRY}/gateway
+
+gateway/deploy:
+	echo "Deploy gateway service"
+	ssh root@${SWARM_MANAGER} "docker service create --replicas 2 --replicas-max-per-node 1 --name gateway -p ${GATEWAY_PORT}:5000 ${DOCKER_REGISTRY}/gateway"
+
+gateway/stop:
+	echo "Not implemented"

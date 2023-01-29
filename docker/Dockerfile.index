@@ -1,0 +1,16 @@
+FROM daangn/faiss
+
+RUN pip install --upgrade pip
+RUN pip install setuptools wheel
+RUN pip install flask==2.2.2 \
+    requests==2.25.1 \
+    uwsgi==2.0.21 \
+    redis==4.4.0
+
+WORKDIR /app
+COPY ./ /app/
+
+ENV FLASK_APP /app/main.py
+
+EXPOSE 5000
+CMD uwsgi uwsgi.ini
