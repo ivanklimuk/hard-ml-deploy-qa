@@ -162,4 +162,5 @@ An example can be found on the following diagram:
 
 - Replace the current dummy ranker model with an actual model.
 - Make the gateway service asynchronous, as it doesn't perform many computations but makes many calls to external sources.
+- Add a healthcheck mechanism for the ML services and the gateway service.
 - Add tests :)
