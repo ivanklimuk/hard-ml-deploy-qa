@@ -60,6 +60,6 @@ def search_handler():
     if len(top_docs) == 0:
         return jsonify(documents=[])
 
-    top_docs_ranked = get_ranked(top_docs)
+    top_docs_ranked = get_ranked(text, top_docs)
 
     return jsonify(documents=top_docs_ranked)

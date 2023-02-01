@@ -11,8 +11,8 @@ def get_embedding(text):
     return list(map(float, json.loads(res.text)["embeddings"][0]))
 
 
-def get_ranked(docs):
-    data = {"docs": docs}
+def get_ranked(text, docs):
+    data = {"text": text, "docs": docs}
     res = requests.post(RANKER_REQUEST_URL, json=data)
 
     return json.loads(res.text)["docs"]
