@@ -8,12 +8,13 @@ export $(cat configs/vars.env | xargs) && rails c
 
 prepare:
 	data
-	nodes 
+	nodes
+
+build:
 	embedder/build 
 	embedder/push 
 	ranker/build
 	ranker/push
-	index/registry
 	index/build
 	index/push
 	gateway/build
@@ -22,6 +23,7 @@ prepare:
 deploy:
 	embedder/deploy
 	ranker/deploy
+	index/registry
 	index/deploy
 	gateway/deploy
 
@@ -118,7 +120,17 @@ gateway/push:
 
 gateway/deploy:
 	echo "Deploy gateway service"
-	ssh root@${SWARM_MANAGER} "docker service create --replicas 2 --replicas-max-per-node 1 --name gateway -p ${GATEWAY_PORT}:5000 ${DOCKER_REGISTRY}/gateway"
+	ssh root@${SWARM_MANAGER} "docker service create \
+		--replicas 2 \
+		--replicas-max-per-node 1 \
+		--name gateway \
+		-p ${GATEWAY_PORT}:5000 \
+		--env REDIS_HOST=${REDIS_HOST} \
+		--env REDIS_PORT=${REDIS_PORT} \
+		--env REDIS_PASSWORD=${REDIS_PASSWORD} \
+		--env EMBEDDER_PORT=${EMBEDDER_PORT} \
+		--env RANKER_PORT=${RANKER_PORT} \
+		${DOCKER_REGISTRY}/gateway"
 
 gateway/stop:
 	echo "Not implemented"
