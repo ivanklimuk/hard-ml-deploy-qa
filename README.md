@@ -83,11 +83,11 @@ The services will be launched in a specific sequence:
 
 The embedder and ranker are relatively independent and can be launched in any order. The index registry (Redis) will be used to store information about each index. During step 4, each index will be deployed and register itself in the registry with the following information:
 
-```json
+```
 {
     index_cluster_host: {
-        'port': XXXX,
-        'cluster_center': '...'
+        "port": XXXX,
+        "cluster_center": "..."
     }
 }
 ```
