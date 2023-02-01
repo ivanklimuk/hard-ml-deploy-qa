@@ -33,7 +33,7 @@ The system consists of the following components:
 - **Search Registry**: A key-value registry (Redis) that holds URLs, port numbers, and cluster centers for each index.
 - **Search Index Clusters**: Each cluster of documents is presented as a FAISS search index.
 
-Each component is deployed as a Docker service in the Swarm cluster, allowing for easy maintenance, independent scalability of each component, and basic service discovery (excluding index discovery). The diagram shows how these services can be allocated on two nodes. All the dashed lines represent possible interactions.
+Each component is deployed as a Docker service in the Swarm cluster, allowing for easy maintenance, independent scalability of each component, and basic service discovery (excluding index discovery). The diagram shows how these services can be allocated on two nodes. The dashed lines represent all possible interactions.
 
 ## Preparation
 
