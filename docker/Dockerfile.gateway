@@ -1,1 +1,19 @@
-# TODO: implement
+FROM python:3.8-alpine
+
+RUN apk update 
+RUN apk add python3-dev gcc libc-dev \
+    musl-dev linux-headers
+
+RUN pip install --upgrade pip
+RUN pip install setuptools wheel
+RUN pip install flask==2.2.2 \
+    requests==2.25.1 \
+    uwsgi==2.0.21
+
+WORKDIR /app
+COPY ./ /app/
+
+ENV FLASK_APP /app/main.py
+
+EXPOSE 5000
+CMD uwsgi uwsgi.ini

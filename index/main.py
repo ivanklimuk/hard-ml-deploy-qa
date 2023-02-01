@@ -52,13 +52,13 @@ background_heartbeat()
 app = Flask(__name__)
 
 
-@app.route("/get_k_neighbours", methods=["POST"])
+@app.route("/top_k_neighbours", methods=["POST"])
 def get_k_neighbours():
     k = int(request.args.get("k"))
     vector = np.array(request.json.get("embedding"))
 
     _, I = search_index.search(vector, k)
-    return jsonify(documents=[idx_to_doc[i] for i in I.tolist()])
+    return jsonify(docs=[idx_to_doc[i] for i in I.tolist()])
 
 
 if __name__ == "__main__":

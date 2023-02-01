@@ -1,6 +1,5 @@
 import sys
 import redis
-import time
 
 from .constants import (
     REDIS_HOST,
