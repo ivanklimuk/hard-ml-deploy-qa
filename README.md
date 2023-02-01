@@ -4,7 +4,7 @@ A prototype of an ML-powered search system that performs document search relevan
 
 ## Introduction
 
-Searching for relevant documents to a given query is a well-known problem in the field of machine learning, commonly referred to as a Learning to Rank problem. The general approach used in these systems is called the "funnel approach":
+Searching for relevant documents to a given query is a well-known problem in the field of machine learning, commonly referred to as a [Learning to rank problem](https://en.wikipedia.org/wiki/Learning_to_rank). The general approach used in these systems is called the "funnel approach":
 
 1. An efficient and simple model is used to generate a limited set of candidate documents (e.g. 100).
 
